@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'sign_up_page.dart'; // Adiciona a importação da SignUpPage
+import 'package:untitled/views/sign_up_page.dart';
+import '../helpers/database_helper.dart'; // Importa o helper do banco de dados
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,6 +10,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  final DatabaseHelper _dbHelper = DatabaseHelper(); // Instância do DatabaseHelper
 
   @override
   Widget build(BuildContext context) {
@@ -45,18 +48,18 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: Text('Login'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[700], // Cor de fundo corrigida
+                backgroundColor: Colors.blue[700],
               ),
             ),
             TextButton(
               onPressed: () {
-                _navigateToSignUp(context); // Função de navegação para o cadastro
+                _navigateToSignUp(context);
               },
               child: Text('Cadastrar-se'),
             ),
             TextButton(
               onPressed: () {
-                _resetPassword(context); // Função para recuperar senha
+                _resetPassword(context);
               },
               child: Text('Esqueceu a senha?'),
             ),
@@ -66,12 +69,23 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _login(BuildContext context) {
+  void _login(BuildContext context) async {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    // Lógica para verificar login
-    if (username == 'admin' && password == 'admin') {
+    // Buscar usuários no banco de dados
+    List<Map<String, dynamic>> users = await _dbHelper.getUsers();
+
+    // Verificar se o usuário existe
+    bool userFound = false;
+    for (var user in users) {
+      if (user['username'] == username && user['password'] == password) {
+        userFound = true;
+        break;
+      }
+    }
+
+    if (userFound) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
   void _navigateToSignUp(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SignUpPage()), // Agora SignUpPage está definido
+      MaterialPageRoute(builder: (context) => SignUpPage()),
     );
   }
 
