@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'widgets/tool_card.dart';
 import '../controllers/home_controller.dart';
+import '../views/settings_page.dart'; // Importação da tela de Configurações
+import '../views/notifications_page.dart'; // Importação da tela de Notificações
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,12 +13,17 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   final HomeController _controller = HomeController();
 
+  // Função para tratar as ações de navegação da BottomNavigationBar
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
 
-    _controller.handleBottomNavigationTap(index, context);
+    if (index == 2) {
+      _controller.navigateToNotificationsPage(context); // Navega para Notificações
+    } else {
+      _controller.handleBottomNavigationTap(index, context);
+    }
   }
 
   @override
@@ -35,7 +42,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.settings, color: Colors.white),
             onPressed: () {
-              _controller.showMessage(context, 'Configurações');
+              _controller.navigateToSettingsPage(context); // Navega para Configurações
             },
           ),
         ],
