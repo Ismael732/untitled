@@ -3,6 +3,10 @@ import 'widgets/tool_card.dart';
 import '../controllers/home_controller.dart';
 import '../views/settings_page.dart'; // Importação da tela de Configurações
 import '../views/notifications_page.dart'; // Importação da tela de Notificações
+import '../views/service_status_page.dart'; // Importação da tela de Status de Serviço
+import '../views/schedule_page.dart'; // Importação da tela de Agendamentos
+import '../views/contacts_page.dart'; // Importação da tela de Contatos
+import '../views/receipts_reviews_page.dart'; // Importação da tela de Recibos e Avaliações
 
 class HomePage extends StatefulWidget {
   @override
@@ -26,6 +30,33 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Função para navegar para as páginas do Drawer
+  void _navigateToPage(String page) {
+    switch (page) {
+      case 'settings':
+        _controller.navigateToSettingsPage(context);
+        break;
+      case 'notifications':
+        _controller.navigateToNotificationsPage(context);
+        break;
+      case 'serviceStatus':
+        _controller.navigateToServiceStatusPage(context);
+        break;
+      case 'schedule':
+        _controller.navigateToSchedulePage(context);
+        break;
+      case 'contacts':
+        _controller.navigateToContactsPage(context);
+        break;
+      case 'receipts':
+        _controller.navigateToReceiptsReviewsPage(context);
+        break;
+      default:
+        break;
+    }
+    Navigator.of(context).pop(); // Fecha o Drawer após a navegação
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,17 +66,64 @@ class _HomePageState extends State<HomePage> {
         leading: IconButton(
           icon: Icon(Icons.menu, color: Colors.white),
           onPressed: () {
-            _controller.showMessage(context, 'Menu');
+            Scaffold.of(context).openDrawer(); // Abre o Drawer
           },
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.settings, color: Colors.white),
-            onPressed: () {
-              _controller.navigateToSettingsPage(context); // Navega para Configurações
-            },
-          ),
+          // Removido o botão de configurações da AppBar
         ],
+      ),
+      drawer: Drawer(
+        child: Container(
+          color: Colors.blue[100], // Cor do fundo do Drawer
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue[700],
+                ),
+                child: Text(
+                  'Menu',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Configurações'),
+                onTap: () => _navigateToPage('settings'),
+              ),
+              ListTile(
+                leading: Icon(Icons.notifications),
+                title: Text('Notificações'),
+                onTap: () => _navigateToPage('notifications'),
+              ),
+              ListTile(
+                leading: Icon(Icons.assignment),
+                title: Text('Status de Serviço'),
+                onTap: () => _navigateToPage('serviceStatus'),
+              ),
+              ListTile(
+                leading: Icon(Icons.calendar_today),
+                title: Text('Agendamentos'),
+                onTap: () => _navigateToPage('schedule'),
+              ),
+              ListTile(
+                leading: Icon(Icons.contacts),
+                title: Text('Contatos'),
+                onTap: () => _navigateToPage('contacts'),
+              ),
+              ListTile(
+                leading: Icon(Icons.receipt),
+                title: Text('Recibos e Avaliações'),
+                onTap: () => _navigateToPage('receipts'),
+              ),
+            ],
+          ),
+        ),
       ),
       body: Column(
         children: [

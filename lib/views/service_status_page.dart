@@ -1,12 +1,170 @@
 import 'package:flutter/material.dart';
+import '../helpers/database_helper.dart';
 
-class ServiceStatusPage extends StatelessWidget {
-  final List<Map<String, dynamic>> services = [
-    {'name': 'Manutenção de Sistema', 'status': 'Concluído', 'date': '05/10/2024'},
-    {'name': 'Atualização de Software', 'status': 'Em andamento', 'date': '08/10/2024'},
-    {'name': 'Instalação de Servidor', 'status': 'Pendente', 'date': '10/10/2024'},
-    {'name': 'Backup de Dados', 'status': 'Concluído', 'date': '01/10/2024'},
-  ];
+class ServiceStatusPage extends StatefulWidget {
+  @override
+  _ServiceStatusPageState createState() => _ServiceStatusPageState();
+}
+
+class _ServiceStatusPageState extends State<ServiceStatusPage> {
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+  List<Map<String, dynamic>> services = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadServices();
+  }
+
+  void _loadServices() async {
+    final data = await _dbHelper.getServices();
+    setState(() {
+      services = data;
+    });
+  }
+
+  void _addService() async {
+    String name = '';
+    String status = '';
+    String date = '';
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Adicionar Serviço'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: InputDecoration(labelText: 'Nome do Serviço'),
+              onChanged: (value) => name = value,
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Status'),
+              onChanged: (value) => status = value,
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Data'),
+              onChanged: (value) => date = value,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (name.isNotEmpty && status.isNotEmpty && date.isNotEmpty) {
+                await _dbHelper.addService(name, status, date);
+                _loadServices();
+                Navigator.of(context).pop();
+              }
+            },
+            child: Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editService(int id, String currentName, String currentStatus, String currentDate) async {
+    String name = currentName;
+    String status = currentStatus;
+    String date = currentDate;
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Editar Serviço'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: InputDecoration(labelText: 'Nome do Serviço'),
+              onChanged: (value) => name = value,
+              controller: TextEditingController(text: currentName),
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Status'),
+              onChanged: (value) => status = value,
+              controller: TextEditingController(text: currentStatus),
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Data'),
+              onChanged: (value) => date = value,
+              controller: TextEditingController(text: currentDate),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (name.isNotEmpty && status.isNotEmpty && date.isNotEmpty) {
+                await _dbHelper.updateService(id, name, status, date);
+                _loadServices();
+                Navigator.of(context).pop();
+              }
+            },
+            child: Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteService(int id) async {
+    await _dbHelper.deleteService(id);
+    _loadServices();
+  }
+
+  void _showServiceDetails(BuildContext context, Map<String, dynamic> service) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        title: Text(
+          service['name'],
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.blue[700],
+          ),
+        ),
+        content: Text(
+          'Status: ${service['status']}\nData: ${service['date']}\n\nDetalhes sobre o serviço podem ser adicionados aqui.',
+          style: TextStyle(color: Colors.blueGrey),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.blue[700],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+            ),
+            child: Text(
+              'Fechar',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +175,12 @@ class ServiceStatusPage extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.blue[700],
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: _addService,
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -64,56 +228,31 @@ class ServiceStatusPage extends StatelessWidget {
                     'Data: ${service['date']} - Status: ${service['status']}',
                     style: TextStyle(color: Colors.blueGrey),
                   ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.info, color: Colors.blue[700]),
-                    onPressed: () {
-                      _showServiceDetails(context, service);
-                    },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.blue[700]),
+                        onPressed: () {
+                          _editService(service['id'], service['name'], service['status'], service['date']);
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          _deleteService(service['id']);
+                        },
+                      ),
+                    ],
                   ),
+                  onTap: () {
+                    _showServiceDetails(context, service);
+                  },
                 ),
               );
             },
           ),
         ),
-      ),
-    );
-  }
-
-  void _showServiceDetails(BuildContext context, Map<String, dynamic> service) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        title: Text(
-          service['name'],
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.blue[700],
-          ),
-        ),
-        content: Text(
-          'Status: ${service['status']}\nData: ${service['date']}\n\nDetalhes sobre o serviço podem ser adicionados aqui.',
-          style: TextStyle(color: Colors.blueGrey),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.blue[700],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-            ),
-            child: Text(
-              'Fechar',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
       ),
     );
   }

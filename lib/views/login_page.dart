@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                 // Logo ou Ícone
                 CircleAvatar(
                   radius: 50.0,
-                  backgroundImage: AssetImage('assets/images/logo.png'),
+                  backgroundImage: AssetImage('assets/images/imagemA.png'),
                 ),
                 SizedBox(height: 30.0),
 

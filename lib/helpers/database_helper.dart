@@ -19,8 +19,9 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'app_database.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Incrementar a versão do banco de dados
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade, // Adicionar tratamento para atualizações do banco de dados
     );
   }
 
@@ -43,6 +44,30 @@ class DatabaseHelper {
         email TEXT
       )
     ''');
+
+    // Criação da tabela de serviços
+    await db.execute('''
+      CREATE TABLE services(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        status TEXT,
+        date TEXT
+      )
+    ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Criação da tabela de serviços quando a versão é atualizada para 2
+      await db.execute('''
+        CREATE TABLE services(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT,
+          status TEXT,
+          date TEXT
+        )
+      ''');
+    }
   }
 
   // Métodos para a tabela de usuários (já existentes)
@@ -77,5 +102,27 @@ class DatabaseHelper {
   Future<int> deleteContact(int id) async {
     final db = await database;
     return await db.delete('contacts', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Métodos para a tabela de serviços
+
+  Future<int> addService(String name, String status, String date) async {
+    final db = await database;
+    return await db.insert('services', {'name': name, 'status': status, 'date': date});
+  }
+
+  Future<List<Map<String, dynamic>>> getServices() async {
+    final db = await database;
+    return await db.query('services');
+  }
+
+  Future<int> updateService(int id, String name, String status, String date) async {
+    final db = await database;
+    return await db.update('services', {'name': name, 'status': status, 'date': date}, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> deleteService(int id) async {
+    final db = await database;
+    return await db.delete('services', where: 'id = ?', whereArgs: [id]);
   }
 }
