@@ -25,6 +25,7 @@ class DatabaseHelper {
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    // Criação da tabela de usuários
     await db.execute('''
       CREATE TABLE users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +33,19 @@ class DatabaseHelper {
         password TEXT
       )
     ''');
+
+    // Criação da tabela de contatos
+    await db.execute('''
+      CREATE TABLE contacts(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        phone TEXT,
+        email TEXT
+      )
+    ''');
   }
+
+  // Métodos para a tabela de usuários (já existentes)
 
   Future<int> saveUser(String username, String password) async {
     final db = await database;
@@ -42,5 +55,27 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> getUsers() async {
     final db = await database;
     return await db.query('users');
+  }
+
+  // Métodos para a tabela de contatos
+
+  Future<int> addContact(String name, String phone, String email) async {
+    final db = await database;
+    return await db.insert('contacts', {'name': name, 'phone': phone, 'email': email});
+  }
+
+  Future<List<Map<String, dynamic>>> getContacts() async {
+    final db = await database;
+    return await db.query('contacts');
+  }
+
+  Future<int> updateContact(int id, String name, String phone, String email) async {
+    final db = await database;
+    return await db.update('contacts', {'name': name, 'phone': phone, 'email': email}, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> deleteContact(int id) async {
+    final db = await database;
+    return await db.delete('contacts', where: 'id = ?', whereArgs: [id]);
   }
 }
