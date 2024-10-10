@@ -32,7 +32,13 @@ class _ContactsPageState extends State<ContactsPage> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Novo Contato'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        title: Text(
+          'Novo Contato',
+          style: TextStyle(color: Colors.blue[700]),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -55,7 +61,13 @@ class _ContactsPageState extends State<ContactsPage> {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('Cancelar'),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.red[400],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+            ),
+            child: Text('Cancelar', style: TextStyle(color: Colors.white)),
           ),
           TextButton(
             onPressed: () async {
@@ -65,7 +77,13 @@ class _ContactsPageState extends State<ContactsPage> {
                 Navigator.of(context).pop();
               }
             },
-            child: Text('Salvar'),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.blue[700],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+            ),
+            child: Text('Salvar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -80,7 +98,13 @@ class _ContactsPageState extends State<ContactsPage> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editar Contato'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        title: Text(
+          'Editar Contato',
+          style: TextStyle(color: Colors.blue[700]),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -106,7 +130,13 @@ class _ContactsPageState extends State<ContactsPage> {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('Cancelar'),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.red[400],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+            ),
+            child: Text('Cancelar', style: TextStyle(color: Colors.white)),
           ),
           TextButton(
             onPressed: () async {
@@ -116,7 +146,13 @@ class _ContactsPageState extends State<ContactsPage> {
                 Navigator.of(context).pop();
               }
             },
-            child: Text('Salvar'),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.blue[700],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+            ),
+            child: Text('Salvar', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -132,41 +168,74 @@ class _ContactsPageState extends State<ContactsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contatos'),
+        title: Text('Contatos', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue[700],
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.add, color: Colors.white),
             onPressed: _addContact,
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _contacts.length,
-        itemBuilder: (context, index) {
-          final contact = _contacts[index];
-          return ListTile(
-            title: Text(contact['name']),
-            subtitle: Text('${contact['phone']} • ${contact['email']}'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    _editContact(contact['id'], contact['name'], contact['phone'], contact['email']);
-                  },
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue[700]!, Colors.blue[400]!],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: ListView.builder(
+          itemCount: _contacts.length,
+          itemBuilder: (context, index) {
+            final contact = _contacts[index];
+            return Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              elevation: 4,
+              margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blue[700],
+                  child: Text(
+                    contact['name'][0],
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () {
-                    _deleteContact(contact['id']);
-                  },
+                title: Text(
+                  contact['name'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0,
+                    color: Colors.blue[900],
+                  ),
                 ),
-              ],
-            ),
-          );
-        },
+                subtitle: Text(
+                  '${contact['phone']} • ${contact['email']}',
+                  style: TextStyle(color: Colors.blueGrey),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, color: Colors.blue[700]),
+                      onPressed: () {
+                        _editContact(contact['id'], contact['name'], contact['phone'], contact['email']);
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red[400]),
+                      onPressed: () {
+                        _deleteContact(contact['id']);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
