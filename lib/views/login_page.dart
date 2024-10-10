@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/views/sign_up_page.dart';
-import '../helpers/database_helper.dart'; // Importa o helper do banco de dados
+import '../helpers/database_helper.dart';
+import 'sign_up_page.dart';
+import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -8,114 +10,202 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  String _username = '';
+  String _password = '';
+  bool _obscureText = true;
+  final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  final DatabaseHelper _dbHelper = DatabaseHelper(); // Instância do DatabaseHelper
+  void _login() async {
+    final users = await _dbHelper.getUsers();
+    bool authenticated = false;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Login'),
-        backgroundColor: Colors.blue[700],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Nome de usuário',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Senha',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                _login(context);
-              },
-              child: Text('Login'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[700],
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                _navigateToSignUp(context);
-              },
-              child: Text('Cadastrar-se'),
-            ),
-            TextButton(
-              onPressed: () {
-                _resetPassword(context);
-              },
-              child: Text('Esqueceu a senha?'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _login(BuildContext context) async {
-    String username = _usernameController.text;
-    String password = _passwordController.text;
-
-    // Buscar usuários no banco de dados
-    List<Map<String, dynamic>> users = await _dbHelper.getUsers();
-
-    // Verificar se o usuário existe
-    bool userFound = false;
     for (var user in users) {
-      if (user['username'] == username && user['password'] == password) {
-        userFound = true;
+      if (user['username'] == _username && user['password'] == _password) {
+        authenticated = true;
         break;
       }
     }
 
-    if (userFound) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login ou senha incorretos')),
+    if (authenticated) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()), // Redireciona para a HomePage
       );
+    } else {
+      _showErrorDialog('Nome de usuário ou senha inválidos');
     }
   }
 
-  void _navigateToSignUp(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SignUpPage()),
-    );
-  }
-
-  void _resetPassword(BuildContext context) {
+  void _showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Recuperar senha'),
-        content: Text('Entre em contato com o suporte para recuperar a senha.'),
+        title: Text('Erro'),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('Fechar'),
+            child: Text('OK'),
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue[700]!, Colors.blue[400]!],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo ou Ícone
+                CircleAvatar(
+                  radius: 50.0,
+                  backgroundImage: AssetImage('assets/images/logo.png'),
+                ),
+                SizedBox(height: 30.0),
+
+                // Título estilizado
+                Text(
+                  'Bem-vindo!',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  'Faça login para continuar',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
+                ),
+                SizedBox(height: 40.0),
+
+                // Campo de Nome de Usuário
+                _buildTextField(
+                  label: 'Usuário',
+                  icon: Icons.person,
+                  onChanged: (value) => _username = value,
+                ),
+                SizedBox(height: 20.0),
+
+                // Campo de Senha com botão de visibilidade
+                _buildTextField(
+                  label: 'Senha',
+                  icon: Icons.lock,
+                  obscureText: _obscureText,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.white70,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  ),
+                  onChanged: (value) => _password = value,
+                ),
+                SizedBox(height: 30.0),
+
+                // Botão de Login
+                ElevatedButton(
+                  onPressed: _login,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 15.0),
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                  child: Text(
+                    'Entrar',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      color: Colors.blue[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.0),
+
+                // Botão de Cadastro
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignUpPage()), // Navegação para a página de cadastro
+                    );
+                  },
+                  child: Text(
+                    'Cadastre-se',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
+
+                // Link de "Esqueci a senha"
+                TextButton(
+                  onPressed: () {
+                    // Navegação para a página de recuperação de senha
+                  },
+                  child: Text(
+                    'Esqueci a senha',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Função para estilizar os campos de texto
+  Widget _buildTextField({
+    required String label,
+    required IconData icon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    required Function(String) onChanged,
+  }) {
+    return TextField(
+      obscureText: obscureText,
+      style: TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: Colors.white70),
+        suffixIcon: suffixIcon,
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.white70),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.2),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(color: Colors.white70),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(color: Colors.white),
+        ),
+      ),
+      onChanged: onChanged,
     );
   }
 }
