@@ -16,10 +16,7 @@ class ToolCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.blue[700]!,
-            Colors.blue[400]!,
-          ],
+          colors: [Colors.blue[700]!, Colors.blue[400]!],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -27,7 +24,7 @@ class ToolCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -1,99 +1,40 @@
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
+  final List<Map<String, String>> settingsOptions = [
+    {'title': 'Tema', 'subtitle': 'Alterar o tema do aplicativo'},
+    {'title': 'Notificações', 'subtitle': 'Gerenciar notificações'},
+    {'title': 'Sobre', 'subtitle': 'Informações sobre o aplicativo'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Configurações'),
-        backgroundColor: Colors.blue[700],
-      ),
-      body: ListView(
+      appBar: AppBar(title: Text('Configurações')),
+      body: ListView.builder(
         padding: EdgeInsets.all(16.0),
-        children: [
-          ListTile(
-            title: Text('Tema'),
-            subtitle: Text('Alterar o tema do aplicativo'),
+        itemCount: settingsOptions.length,
+        itemBuilder: (context, index) {
+          final option = settingsOptions[index];
+          return ListTile(
+            title: Text(option['title']!),
+            subtitle: Text(option['subtitle']!),
             trailing: Icon(Icons.arrow_forward),
-            onTap: () {
-              // Lógica para alterar o tema pode ser implementada aqui
-              _showThemeOptions(context);
-            },
-          ),
-          Divider(),
-          ListTile(
-            title: Text('Notificações'),
-            subtitle: Text('Gerenciar notificações'),
-            trailing: Icon(Icons.arrow_forward),
-            onTap: () {
-              // Lógica para gerenciar notificações pode ser implementada aqui
-              _showNotificationSettings(context);
-            },
-          ),
-          Divider(),
-          ListTile(
-            title: Text('Sobre'),
-            subtitle: Text('Informações sobre o aplicativo'),
-            trailing: Icon(Icons.arrow_forward),
-            onTap: () {
-              // Lógica para mostrar informações sobre o aplicativo
-              _showAboutDialog(context);
-            },
-          ),
-        ],
+            onTap: () => _showSettingDialog(context, option['title']!),
+          );
+        },
       ),
     );
   }
 
-  void _showThemeOptions(BuildContext context) {
+  void _showSettingDialog(BuildContext context, String title) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Escolha o Tema'),
-        content: Text('Aqui você pode escolher o tema do aplicativo.'),
+        title: Text(title),
+        content: Text('Configurações para $title.'),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Fecha o diálogo
-            },
-            child: Text('Fechar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showNotificationSettings(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Configurações de Notificações'),
-        content: Text('Aqui você pode gerenciar suas notificações.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Fecha o diálogo
-            },
-            child: Text('Fechar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAboutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Sobre o Aplicativo'),
-        content: Text('Este é um aplicativo exemplo.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Fecha o diálogo
-            },
-            child: Text('Fechar'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Fechar')),
         ],
       ),
     );

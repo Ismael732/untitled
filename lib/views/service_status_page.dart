@@ -16,113 +16,49 @@ class _ServiceStatusPageState extends State<ServiceStatusPage> {
     _loadServices();
   }
 
-  void _loadServices() async {
+  Future<void> _loadServices() async {
     final data = await _dbHelper.getServices();
     setState(() {
       services = data;
     });
   }
 
-  void _addService() async {
-    String name = '';
-    String status = '';
-    String date = '';
+  Future<void> _showServiceDialog({Map<String, dynamic>? service}) async {
+    final TextEditingController nameController = TextEditingController(text: service?['name']);
+    final TextEditingController statusController = TextEditingController(text: service?['status']);
+    final TextEditingController dateController = TextEditingController(text: service?['date']);
 
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Adicionar Serviço'),
+        title: Text(service == null ? 'Adicionar Serviço' : 'Editar Serviço'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              decoration: InputDecoration(labelText: 'Nome do Serviço'),
-              onChanged: (value) => name = value,
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: 'Status'),
-              onChanged: (value) => status = value,
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: 'Data'),
-              onChanged: (value) => date = value,
-            ),
+            TextField(controller: nameController, decoration: InputDecoration(labelText: 'Nome do Serviço')),
+            TextField(controller: statusController, decoration: InputDecoration(labelText: 'Status')),
+            TextField(controller: dateController, decoration: InputDecoration(labelText: 'Data')),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (name.isNotEmpty && status.isNotEmpty && date.isNotEmpty) {
-                await _dbHelper.addService(name, status, date);
-                _loadServices();
-                Navigator.of(context).pop();
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar')),
+          TextButton(onPressed: () async {
+            if (nameController.text.isNotEmpty && statusController.text.isNotEmpty && dateController.text.isNotEmpty) {
+              if (service == null) {
+                await _dbHelper.addService(nameController.text, statusController.text, dateController.text);
+              } else {
+                await _dbHelper.updateService(service['id'], nameController.text, statusController.text, dateController.text);
               }
-            },
-            child: Text('Salvar'),
-          ),
+              _loadServices();
+              Navigator.of(context).pop();
+            }
+          }, child: Text('Salvar')),
         ],
       ),
     );
   }
 
-  void _editService(int id, String currentName, String currentStatus, String currentDate) async {
-    String name = currentName;
-    String status = currentStatus;
-    String date = currentDate;
-
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Editar Serviço'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: InputDecoration(labelText: 'Nome do Serviço'),
-              onChanged: (value) => name = value,
-              controller: TextEditingController(text: currentName),
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: 'Status'),
-              onChanged: (value) => status = value,
-              controller: TextEditingController(text: currentStatus),
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: 'Data'),
-              onChanged: (value) => date = value,
-              controller: TextEditingController(text: currentDate),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (name.isNotEmpty && status.isNotEmpty && date.isNotEmpty) {
-                await _dbHelper.updateService(id, name, status, date);
-                _loadServices();
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text('Salvar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _deleteService(int id) async {
+  Future<void> _deleteService(int id) async {
     await _dbHelper.deleteService(id);
     _loadServices();
   }
@@ -131,36 +67,10 @@ class _ServiceStatusPageState extends State<ServiceStatusPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        title: Text(
-          service['name'],
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.blue[700],
-          ),
-        ),
-        content: Text(
-          'Status: ${service['status']}\nData: ${service['date']}\n\nDetalhes sobre o serviço podem ser adicionados aqui.',
-          style: TextStyle(color: Colors.blueGrey),
-        ),
+        title: Text(service['name']),
+        content: Text('Status: ${service['status']}\nData: ${service['date']}'),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.blue[700],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-            ),
-            child: Text(
-              'Fechar',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Fechar')),
         ],
       ),
     );
@@ -170,89 +80,29 @@ class _ServiceStatusPageState extends State<ServiceStatusPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Status de Serviço',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.blue[700],
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: _addService,
-          ),
-        ],
+        title: Text('Status de Serviço'),
+        actions: [IconButton(icon: Icon(Icons.add), onPressed: () => _showServiceDialog())],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue[700]!, Colors.blue[400]!],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView.builder(
-            itemCount: services.length,
-            itemBuilder: (context, index) {
-              final service = services[index];
-              return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  leading: Icon(
-                    service['status'] == 'Concluído'
-                        ? Icons.check_circle
-                        : service['status'] == 'Em andamento'
-                        ? Icons.hourglass_empty
-                        : Icons.pending,
-                    color: service['status'] == 'Concluído'
-                        ? Colors.green
-                        : service['status'] == 'Em andamento'
-                        ? Colors.orange
-                        : Colors.red,
-                    size: 40.0,
-                  ),
-                  title: Text(
-                    service['name'],
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
-                      color: Colors.blue[900],
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Data: ${service['date']} - Status: ${service['status']}',
-                    style: TextStyle(color: Colors.blueGrey),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: Colors.blue[700]),
-                        onPressed: () {
-                          _editService(service['id'], service['name'], service['status'], service['date']);
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _deleteService(service['id']);
-                        },
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    _showServiceDetails(context, service);
-                  },
-                ),
-              );
-            },
-          ),
-        ),
+      body: ListView.builder(
+        itemCount: services.length,
+        itemBuilder: (context, index) {
+          final service = services[index];
+          return Card(
+            child: ListTile(
+              leading: Icon(Icons.info, color: Colors.blue),
+              title: Text(service['name']),
+              subtitle: Text('Data: ${service['date']} - Status: ${service['status']}'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(icon: Icon(Icons.edit), onPressed: () => _showServiceDialog(service: service)),
+                  IconButton(icon: Icon(Icons.delete), onPressed: () => _deleteService(service['id'])),
+                ],
+              ),
+              onTap: () => _showServiceDetails(context, service),
+            ),
+          );
+        },
       ),
     );
   }

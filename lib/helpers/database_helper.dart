@@ -19,7 +19,7 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'app_database.db');
     return await openDatabase(
       path,
-      version: 2, // Incrementar a versão do banco de dados
+      version: 2,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade, // Adicionar tratamento para atualizações do banco de dados
     );
@@ -70,7 +70,6 @@ class DatabaseHelper {
     }
   }
 
-  // Métodos para a tabela de usuários (já existentes)
 
   Future<int> saveUser(String username, String password) async {
     final db = await database;

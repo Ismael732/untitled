@@ -11,10 +11,7 @@ class ReceiptsReviewsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Recibos e Avaliações'),
-        backgroundColor: Colors.blue[700],
-      ),
+      appBar: AppBar(title: Text('Recibos e Avaliações')),
       body: ListView.builder(
         itemCount: receipts.length,
         itemBuilder: (context, index) {
@@ -31,11 +28,8 @@ class ReceiptsReviewsPage extends StatelessWidget {
                   Row(
                     children: List.generate(5, (starIndex) {
                       return Icon(
-                        starIndex < receipt['rating']
-                            ? Icons.star
-                            : Icons.star_border,
+                        starIndex < receipt['rating'] ? Icons.star : Icons.star_border,
                         color: Colors.yellow,
-                        size: 16,
                       );
                     }),
                   ),
@@ -43,9 +37,7 @@ class ReceiptsReviewsPage extends StatelessWidget {
               ),
               trailing: IconButton(
                 icon: Icon(Icons.info_outline),
-                onPressed: () {
-                  _showReceiptDetails(context, receipt);
-                },
+                onPressed: () => _showReceiptDetails(context, receipt),
               ),
             ),
           );
@@ -59,15 +51,9 @@ class ReceiptsReviewsPage extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(receipt['service']),
-        content: Text(
-            'Data: ${receipt['date']}\nAvaliação: ${receipt['review']}\nNota: ${receipt['rating']}/5'),
+        content: Text('Data: ${receipt['date']}\nAvaliação: ${receipt['review']}\nNota: ${receipt['rating']}/5'),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Fechar'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Fechar')),
         ],
       ),
     );

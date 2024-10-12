@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/views/sign_up_page.dart';
 import '../helpers/database_helper.dart';
 import 'sign_up_page.dart';
 import 'home_page.dart';
@@ -178,7 +177,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // Função para estilizar os campos de texto
   Widget _buildTextField({
     required String label,
     required IconData icon,

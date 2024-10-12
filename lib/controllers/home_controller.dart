@@ -20,7 +20,7 @@ class HomeController {
     );
   }
 
-  // Adicione este método à classe HomeController
+
   void navigateToSettingsPage(BuildContext context) {
     Navigator.push(
       context,

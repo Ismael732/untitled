@@ -16,7 +16,6 @@ class NotificationsPage extends StatelessWidget {
             title: Text('Notificação 1'),
             subtitle: Text('Detalhes da notificação 1.'),
             onTap: () {
-              // Lógica ao clicar na notificação
             },
           ),
           Divider(),
@@ -25,7 +24,6 @@ class NotificationsPage extends StatelessWidget {
             title: Text('Notificação 2'),
             subtitle: Text('Detalhes da notificação 2.'),
             onTap: () {
-              // Lógica ao clicar na notificação
             },
           ),
           Divider(),
@@ -34,7 +32,6 @@ class NotificationsPage extends StatelessWidget {
             title: Text('Notificação 3'),
             subtitle: Text('Detalhes da notificação 3.'),
             onTap: () {
-              // Lógica ao clicar na notificação
             },
           ),
         ],

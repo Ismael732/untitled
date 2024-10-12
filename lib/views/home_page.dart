@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'widgets/tool_card.dart';
 import '../controllers/home_controller.dart';
-import '../views/settings_page.dart'; // Importação da tela de Configurações
-import '../views/notifications_page.dart'; // Importação da tela de Notificações
-import '../views/service_status_page.dart'; // Importação da tela de Status de Serviço
-import '../views/schedule_page.dart'; // Importação da tela de Agendamentos
-import '../views/contacts_page.dart'; // Importação da tela de Contatos
-import '../views/receipts_reviews_page.dart'; // Importação da tela de Recibos e Avaliações
+import '../views/settings_page.dart';
+import '../views/notifications_page.dart';
+import '../views/service_status_page.dart';
+import '../views/schedule_page.dart';
+import '../views/contacts_page.dart';
+import '../views/receipts_reviews_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -70,12 +70,12 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         actions: [
-          // Removido o botão de configurações da AppBar
+
         ],
       ),
       drawer: Drawer(
         child: Container(
-          color: Colors.blue[100], // Cor do fundo do Drawer
+          color: Colors.blue[100],
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
